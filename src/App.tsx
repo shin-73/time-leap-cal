@@ -12,7 +12,6 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('');
   const [isImageLoading, setIsImageLoading] = useState(false);
-  const [photoInfo, setPhotoInfo] = useState<{ name: string; username: string } | null>(null);
 
   const getEraColor = (year: number) => {
     if (year >= 2019) return 'f3f4f6'; // Reiwa
