@@ -28,6 +28,48 @@ function App() {
     setShowSettings(false);
   };
 
+  // URL Persistence and Scroll to Top
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const yearParam = params.get('year');
+    const eraParam = params.get('era') as EraType;
+    
+    if (yearParam) {
+      setInputValue(yearParam);
+      if (eraParam) setSelectedEra(eraParam);
+      // We'll trigger search after state updates
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (inputValue && !activeYear) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('year') === inputValue) {
+        handleSearch();
+      }
+    }
+  }, [inputValue]);
+
+  React.useEffect(() => {
+    if (activeYear) {
+      window.scrollTo(0, 0);
+    }
+  }, [activeYear]);
+
+  // Handle Browser Back Button
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const yearParam = params.get('year');
+      if (!yearParam) {
+        setActiveYear(null);
+        setInputValue('');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!isSubmitEnabled) return;
@@ -102,6 +144,14 @@ function App() {
       executeLeap();
 
       setActiveYear(targetYear);
+      
+      // Update URL
+      const url = new URL(window.location.href);
+      url.searchParams.set('year', inputValue);
+      url.searchParams.set('era', selectedEra);
+      window.history.pushState({}, '', url);
+      
+      window.scrollTo(0, 0);
     } else {
       alert('正しい数字を入力してください（1868年以降）。');
     }
@@ -141,6 +191,9 @@ function App() {
             />
           )}
           
+          {/* Subtle white overlay for readability */}
+          <div className="absolute inset-0 bg-white/40 z-[5]"></div>
+          
           <div className="absolute bottom-6 right-8 text-[10px] font-bold uppercase tracking-[0.2em] opacity-20 hover:opacity-100 transition-opacity flex items-center gap-2 pointer-events-none select-none">
             <div className="w-4 h-px bg-black opacity-20"></div>
             Wikimedia Commons
@@ -155,39 +208,43 @@ function App() {
             onClick={() => {
               setActiveYear(null);
               setInputValue('');
+              // Reset URL
+              const url = new URL(window.location.href);
+              url.search = '';
+              window.history.pushState({}, '', url);
             }}
-            className="absolute top-8 left-8 p-4 hover:bg-gray-100 bg-white/50 backdrop-blur-sm"
+            className="absolute top-8 left-8 p-4 hover:bg-gray-100 bg-white/50 backdrop-blur-sm z-50"
           >
             <ChevronLeft className="w-8 h-8" />
           </button>
         </div>
 
         {/* Bottom Section: Content */}
-        <div className="p-8 md:p-16">
-          <div className="max-w-4xl mx-auto space-y-16">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="p-6 md:p-12">
+          <div className="max-w-4xl mx-auto space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
               <div>
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-6 border-b border-black pb-2 opacity-40">Main Events</h3>
-                <ul className="space-y-6">
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-4 border-b border-black pb-2 opacity-40">Main Events</h3>
+                <ul className="space-y-4">
                   {yearData.events.map((e, i) => (
-                    <li key={i} className="text-xl font-bold leading-tight border-l-4 border-black pl-4">{e}</li>
+                    <li key={i} className="text-lg md:text-xl font-bold leading-tight border-l-4 border-black pl-4">{e}</li>
                   ))}
                 </ul>
               </div>
-              <div className="space-y-12">
+              <div className="space-y-8 md:space-y-12">
                 <div>
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-4 border-b border-black pb-2 opacity-40">Buzzword</h3>
-                  <p className="text-3xl font-black uppercase tracking-tighter">{yearData.buzzwords[0]}</p>
+                  <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-3 border-b border-black pb-2 opacity-40">Buzzword</h3>
+                  <p className="text-2xl md:text-3xl font-black uppercase tracking-tighter">{yearData.buzzwords[0]}</p>
                 </div>
                 <div>
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-4 border-b border-black pb-2 opacity-40">Top Hit</h3>
-                  <p className="text-3xl font-black uppercase tracking-tighter">{yearData.songs[0]}</p>
+                  <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-3 border-b border-black pb-2 opacity-40">Top Hit</h3>
+                  <p className="text-2xl md:text-3xl font-black uppercase tracking-tighter">{yearData.songs[0]}</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-8 border-t border-black/5">
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-6 border-b border-black pb-2 opacity-40">Your Timeline</h3>
+            <div className="pt-6 border-t border-black/5">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] mb-4 border-b border-black pb-2 opacity-40">Your Timeline</h3>
               {lifeStage ? (
                 <div className="flex items-baseline gap-4">
                   <span className="text-7xl font-black">{lifeStage.age}</span>
@@ -212,7 +269,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-8 bg-white text-black relative md:overflow-hidden">
+    <div className="h-screen w-full flex flex-col items-center justify-center p-6 bg-white text-black relative overflow-hidden">
       {/* Settings Icon (Top Right, Subtle) */}
       <button 
         onClick={() => setShowSettings(true)}
@@ -274,7 +331,7 @@ function App() {
               disabled={!isSubmitEnabled}
               className={`w-full py-8 md:py-10 text-xs md:text-lg font-black uppercase tracking-[1em] ${isSubmitEnabled ? 'bg-black text-white cursor-pointer' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
             >
-              Leap
+              Time Leap
             </button>
           </div>
           
