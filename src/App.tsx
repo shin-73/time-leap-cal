@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Settings, Calendar } from 'lucide-react';
-import { convertAdToJapaneseEra, getLifeStage, getYearData, type YearData } from './data';
+import { X, Settings } from 'lucide-react';
+import { convertAdToJapaneseEra, getLifeStage, getYearData } from './data';
 
 type EraType = '西暦' | '明治' | '大正' | '昭和' | '平成' | '令和';
 
