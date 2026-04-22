@@ -285,11 +285,15 @@ function App() {
               onChange={(e) => setInputValue(e.target.value.replace(/[^0-9]/g, ''))} 
               onBlur={() => isSubmitEnabled && handleSearch()} 
               placeholder={
-                selectedEra === '令和' ? '6' :
-                selectedEra === '平成' ? '31' :
-                selectedEra === '昭和' ? '64' :
-                selectedEra === '大正' ? '14' :
-                selectedEra === '明治' ? '45' : '2026'
+                (() => {
+                  const currentYear = new Date().getFullYear();
+                  if (selectedEra === '令和') return (currentYear - 2018).toString();
+                  if (selectedEra === '平成') return (currentYear - 1988).toString();
+                  if (selectedEra === '昭和') return (currentYear - 1925).toString();
+                  if (selectedEra === '大正') return (currentYear - 1911).toString();
+                  if (selectedEra === '明治') return (currentYear - 1867).toString();
+                  return currentYear.toString();
+                })()
               } 
               className="w-full bg-transparent border-none text-8xl md:text-[10rem] font-black placeholder:text-gray-200 focus:outline-none text-center" 
             />
