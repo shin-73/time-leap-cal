@@ -117,11 +117,13 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const handleSearch = (e?: React.FormEvent) => {
+  const handleSearch = (e?: React.FormEvent, overrideValue?: string) => {
     if (e) e.preventDefault();
-    if (!isSubmitEnabled) return;
+    const val = overrideValue ?? inputValue;
+    const isEnabled = selectedEra === '西暦' ? val.length === 4 : val.length >= 1;
+    if (!isEnabled) return;
 
-    let targetYear = parseInt(inputValue, 10);
+    let targetYear = parseInt(val, 10);
     if (selectedEra !== '西暦') {
       if (selectedEra === '令和') targetYear += 2018;
       else if (selectedEra === '平成') targetYear += 1988;
@@ -281,7 +283,7 @@ function App() {
   }
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center p-4 bg-white text-black relative overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-white text-black relative">
       <button onClick={() => setShowSettings(true)} className="absolute top-4 right-4 p-4 opacity-10 hover:opacity-100 transition-opacity"><Settings className="w-6 h-6" /></button>
       <div className="w-full max-w-4xl px-4 py-2 space-y-4 text-center">
         <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">Time Leap Cal</h1>
@@ -293,7 +295,14 @@ function App() {
               inputMode="numeric"
               pattern="[0-9]*"
               value={inputValue} 
-              onChange={(e) => setInputValue(e.target.value.replace(/[^0-9]/g, ''))} 
+              onChange={(e) => {
+                const rawVal = e.target.value;
+                const cleaned = rawVal.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '');
+                setInputValue(cleaned);
+                if (selectedEra === '西暦' && cleaned.length === 4) {
+                  handleSearch(undefined, cleaned);
+                }
+              }}
               onBlur={() => isSubmitEnabled && handleSearch()} 
               placeholder={
                 (() => {
@@ -308,16 +317,16 @@ function App() {
               } 
               className="w-full bg-transparent border-none text-7xl md:text-[10rem] font-black placeholder:text-gray-200 focus:outline-none text-center" 
             />
-            <div className="absolute -bottom-12 left-0 right-0 flex justify-center gap-1 md:gap-4 px-2">
-              {(['西暦', '明治', '大正', '昭和', '平成', '令和'] as EraType[]).map(era => (
-                <label key={era} className="flex items-center cursor-pointer">
-                  <input type="radio" checked={selectedEra === era} onChange={() => setSelectedEra(era)} className="sr-only" />
-                  <span className={`px-2 py-2 text-[10px] md:text-sm font-bold border-2 transition-all whitespace-nowrap ${selectedEra === era ? 'bg-black text-white border-black' : 'border-transparent text-gray-300 hover:text-black'}`}>
-                    {era}
-                  </span>
-                </label>
-              ))}
-            </div>
+          </div>
+          <div className="flex justify-center flex-wrap gap-1 md:gap-4 px-2">
+            {(['西暦', '明治', '大正', '昭和', '平成', '令和'] as EraType[]).map(era => (
+              <label key={era} className="flex items-center cursor-pointer">
+                <input type="radio" checked={selectedEra === era} onChange={() => setSelectedEra(era)} className="sr-only" />
+                <span className={`px-2 py-2 text-[10px] md:text-sm font-bold border-2 transition-all whitespace-nowrap ${selectedEra === era ? 'bg-black text-white border-black' : 'border-transparent text-gray-300 hover:text-black'}`}>
+                  {era}
+                </span>
+              </label>
+            ))}
           </div>
           <div className="pt-8 hidden md:block">
             <button type="submit" disabled={!isSubmitEnabled} className={`w-full py-10 text-lg font-black uppercase tracking-[1em] ${isSubmitEnabled ? 'bg-black text-white' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>タイムリープ</button>
