@@ -283,12 +283,12 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-white text-black relative">
+    <div className="h-screen w-full flex flex-col items-center justify-center p-4 bg-white text-black relative overflow-hidden">
       <button onClick={() => setShowSettings(true)} className="absolute top-4 right-4 p-4 opacity-10 hover:opacity-100 transition-opacity"><Settings className="w-6 h-6" /></button>
-      <div className="w-full max-w-4xl px-4 py-2 space-y-4 text-center">
+      <div className="w-full max-w-4xl px-4 py-2 space-y-2 md:space-y-4 text-center">
         <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">Time Leap Cal</h1>
         <p className="text-[10px] tracking-[0.6em] uppercase opacity-20 font-medium">Chronological Transition System</p>
-        <form onSubmit={handleSearch} className="space-y-8">
+        <form onSubmit={handleSearch} className="space-y-4 md:space-y-8">
           <div className="relative">
             <input 
               type="text" 
