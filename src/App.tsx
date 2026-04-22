@@ -322,7 +322,7 @@ function App() {
             {(['西暦', '明治', '大正', '昭和', '平成', '令和'] as EraType[]).map(era => (
               <label key={era} className="flex items-center cursor-pointer">
                 <input type="radio" checked={selectedEra === era} onChange={() => setSelectedEra(era)} className="sr-only" />
-                <span className={`px-2 py-2 text-[10px] md:text-sm font-bold border-2 transition-all whitespace-nowrap ${selectedEra === era ? 'bg-black text-white border-black' : 'border-transparent text-gray-300 hover:text-black'}`}>
+                <span className={`px-2 py-2 text-[10px] md:text-sm font-bold border-2 transition-all whitespace-nowrap ${selectedEra === era ? 'bg-black text-white border-black' : 'border-transparent text-gray-500 hover:text-black'}`}>
                   {era}
                 </span>
               </label>
