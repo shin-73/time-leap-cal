@@ -157,6 +157,11 @@ function App() {
                 pattern="[0-9]*"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value.replace(/[^0-9]/g, ''))}
+                onBlur={() => {
+                  if (isSubmitEnabled) {
+                    handleSearch();
+                  }
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     handleSearch();
