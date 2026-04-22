@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Calendar, Share, CalendarHeart } from 'lucide-react';
-import { convertAdToJapaneseEra, convertEraToAdYear, getLifeStage, getYearData, getThemeForEra, type YearData } from './data';
+import { convertAdToJapaneseEra, convertEraToAdYear, getLifeStage, getYearData, type YearData } from './data';
 
 function App() {
   const [query, setQuery] = useState('');
@@ -54,140 +54,145 @@ function App() {
   const eraText = eraData ? `${eraData.era}${eraData.eraYear === 1 ? '元' : eraData.eraYear}年` : '';
   const yearData = activeYear ? getYearData(activeYear, eraData!.era) : null;
   const lifeStage = activeYear ? getLifeStage(birthDate, activeYear) : null;
-  const theme = activeYear ? getThemeForEra(eraData!.era) : { bg: 'bg-stone-50', text: 'text-stone-800', card: 'bg-white', fontTitle: 'font-serif' };
 
   return (
-    <div className={`flex-1 flex flex-col md:flex-row w-full overflow-hidden transition-colors duration-1000 ${activeYear ? theme.bg : 'bg-stone-100'}`}>
+    <div className="flex-1 flex flex-col md:flex-row w-full bg-white text-black min-h-screen">
       
       {/* Left Sidebar */}
-      <div className="w-full md:w-[400px] md:min-h-screen bg-stone-100/90 backdrop-blur-3xl border-r border-stone-200/50 p-6 flex flex-col gap-6 z-20 shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.05)] overflow-y-auto">
+      <div className="w-full md:w-[400px] border-b md:border-b-0 md:border-r border-black p-8 flex flex-col gap-12 z-20 shrink-0">
         
-        {/* Search Form (Top Left - Always displayed) */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 space-y-8 text-center shrink-0">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-serif text-stone-800 tracking-wider">Time-Leap Cal</h1>
-            <p className="text-stone-500 font-sans text-xs mt-2">西暦から過去の空気感へタイムスリップ</p>
+        {/* Header & Search */}
+        <div className="space-y-8">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold tracking-tighter uppercase">Time-Leap Cal</h1>
+            <p className="text-[10px] tracking-[0.2em] uppercase opacity-50 font-medium">Chronological Transition System</p>
           </div>
 
-          <form onSubmit={handleSearch} className="relative">
-            <input 
-              type="text" 
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="1995 または 平成7"
-              className="w-full text-center px-6 py-4 bg-stone-50 rounded-2xl text-xl font-serif text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 placeholder:text-stone-300 transition border border-stone-100"
-            />
-            <button 
-              type="submit"
-              className="absolute right-2 top-2 bottom-2 aspect-square bg-stone-800 text-white rounded-xl flex items-center justify-center hover:bg-stone-700 transition"
-            >
-              <Search className="w-5 h-5" />
-            </button>
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="relative">
+              <input 
+                type="text" 
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="YEAR OR ERA"
+                className="w-full px-4 py-4 bg-white border border-black text-xl font-bold placeholder:text-black/20 focus:outline-none focus:bg-black focus:text-white transition-colors"
+              />
+              <button 
+                type="submit"
+                className="absolute right-0 top-0 bottom-0 px-4 bg-black text-white hover:bg-white hover:text-black border-l border-black transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+            </div>
           </form>
 
           {birthDate ? (
-            <p className="text-xs text-stone-500 bg-stone-50 py-2 rounded-full border border-stone-100 flex items-center justify-center gap-2">
-              <CalendarHeart className="w-4 h-4 text-rose-400" />
-              生年月日登録済み
-            </p>
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest border border-black/10 px-3 py-2 inline-block">
+              <CalendarHeart className="w-3 h-3" />
+              Profile Active
+            </div>
           ) : (
             <button 
               onClick={() => setShowSettings(true)}
-              className="text-xs text-indigo-500 hover:text-indigo-600 underline font-medium"
+              className="text-[10px] font-bold uppercase tracking-widest border border-black px-3 py-2 hover:bg-black hover:text-white transition-colors"
             >
-              生年月日を登録してパーソナライズする
+              Set Birth Date
             </button>
           )}
         </div>
 
-        {/* Events Card (Appears below when inputted) */}
+        {/* Events Section */}
         {activeYear && yearData && (
-          <div className={`${theme.card} backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl flex flex-col gap-6 animate-slide-up text-white`}>
+          <div className="flex flex-col gap-8 border-t border-black pt-8 animate-in fade-in duration-500">
             <div>
-              <h3 className="text-sm font-sans tracking-widest opacity-70 mb-4 uppercase">主な出来事</h3>
-              <ul className="space-y-4">
+              <h3 className="text-[10px] font-bold tracking-[0.3em] uppercase opacity-40 mb-6">Major Events</h3>
+              <ul className="space-y-6">
                 {yearData.events.map((event, i) => (
-                  <li key={i} className={`text-lg ${theme.fontTitle} leading-snug`}>{event}</li>
+                  <li key={i} className="text-lg font-bold leading-tight border-l-4 border-black pl-4">{event}</li>
                 ))}
               </ul>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
+            <div className="grid grid-cols-1 gap-6 border-t border-black pt-8">
               <div>
-                <h4 className="text-xs font-sans opacity-60 mb-2">流行語</h4>
-                <p className={`text-sm font-bold ${theme.fontTitle}`}>{yearData.buzzwords[0]}</p>
+                <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase opacity-40 mb-2">Buzzword</h4>
+                <p className="text-sm font-bold uppercase">{yearData.buzzwords[0]}</p>
               </div>
               <div>
-                <h4 className="text-xs font-sans opacity-60 mb-2">ヒット曲</h4>
-                <p className={`text-sm font-bold ${theme.fontTitle}`}>{yearData.songs[0]}</p>
+                <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase opacity-40 mb-2">Top Hit</h4>
+                <p className="text-sm font-bold uppercase">{yearData.songs[0]}</p>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Right Content Area (Output result) */}
-      <div className={`flex-1 relative overflow-hidden flex flex-col ${activeYear ? theme.text : 'text-stone-800'}`}>
+      {/* Right Content Area */}
+      <div className="flex-1 relative flex flex-col bg-white overflow-hidden">
         {activeYear && yearData ? (
-          <>
-            {/* Background Image with Overlay */}
-            <div className="absolute inset-0 z-0">
+          <div className="flex-1 flex flex-col">
+            {/* Visual Header */}
+            <div className="h-[40vh] relative border-b border-black overflow-hidden">
               <img 
                 src={yearData.imageUrl} 
-                alt={`${activeYear}年の風景`}
-                className="w-full h-full object-cover object-center animate-ken-burns scale-105"
+                alt={`${activeYear}`}
+                className="w-full h-full object-cover filter grayscale contrast-125"
               />
-              <div className={`absolute inset-0 ${theme.bg} opacity-40 mix-blend-color`}></div>
-              <div className={`absolute inset-0 ${theme.bg} opacity-40`}></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+              <div className="absolute inset-0 bg-white/10"></div>
+              <div className="absolute bottom-0 left-0 bg-black text-white px-6 py-2 text-sm font-bold tracking-widest uppercase">
+                Scene: {activeYear}
+              </div>
             </div>
 
-            <div className="relative z-10 flex-1 flex flex-col p-6 md:p-12 items-center justify-center min-h-screen">
-              <header className="absolute top-6 right-6 z-20">
+            {/* Main Data */}
+            <div className="flex-1 flex flex-col p-8 md:p-16 relative">
+              <div className="absolute top-8 right-8">
                 <button 
                   onClick={() => shareToTwitter(yearData, lifeStage)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/90 hover:bg-blue-600 text-white backdrop-blur-md transition shadow-lg"
+                  className="flex items-center gap-2 px-6 py-3 border border-black hover:bg-black hover:text-white transition-colors text-xs font-bold uppercase tracking-widest"
                 >
-                  <Share className="w-5 h-5" />
-                  <span className="font-medium font-sans text-sm">シェア</span>
+                  <Share className="w-4 h-4" />
+                  Share Result
                 </button>
-              </header>
+              </div>
 
-              <div className="text-center space-y-4 mb-12 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                <h2 className="text-2xl md:text-4xl font-sans tracking-[0.2em] opacity-90 uppercase text-white drop-shadow-md">{activeYear}</h2>
-                <h1 className={`text-7xl md:text-9xl font-bold tracking-widest ${theme.fontTitle} drop-shadow-2xl text-white`}>
+              <div className="mt-auto space-y-2">
+                <div className="text-2xl font-bold tracking-[0.5em] opacity-30">{activeYear}</div>
+                <h1 className="text-8xl md:text-[12rem] font-black tracking-tighter leading-none -ml-2">
                   {eraText}
                 </h1>
               </div>
 
-              {/* Life Stage Card on exactly the output result right pane */}
               {lifeStage && (
-                <div className={`${theme.card} backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl animate-slide-up max-w-sm w-full text-white text-center`} style={{ animationDelay: '0.4s' }}>
-                  <h3 className="text-sm font-sans tracking-widest opacity-80 mb-6 flex items-center justify-center gap-2 uppercase">
-                    <Calendar className="w-4 h-4" />
-                    あなたの軌跡
+                <div className="mt-12 border-t-8 border-black pt-8 max-w-md">
+                  <h3 className="text-[10px] font-bold tracking-[0.3em] uppercase opacity-40 mb-4 flex items-center gap-2">
+                    <Calendar className="w-3 h-3" />
+                    Personal Timeline
                   </h3>
                   {lifeStage.stage === '生まれる前' ? (
-                    <p className={`text-3xl ${theme.fontTitle} leading-relaxed`}>まだこの世に<br/>生まれていません</p>
+                    <p className="text-4xl font-black leading-none uppercase italic">Not Yet Born</p>
                   ) : (
-                    <>
-                      <div className="flex items-end justify-center gap-2 mb-2">
-                        <span className={`text-7xl font-bold ${theme.fontTitle}`}>{lifeStage.age}</span>
-                        <span className="text-2xl mb-2 opacity-90">歳</span>
+                    <div className="flex items-baseline gap-4">
+                      <span className="text-8xl font-black leading-none">{lifeStage.age}</span>
+                      <div className="flex flex-col">
+                        <span className="text-xl font-bold uppercase">Years Old</span>
+                        <span className="text-sm font-medium opacity-60 uppercase">{lifeStage.stage}</span>
                       </div>
-                      <p className={`text-3xl ${theme.fontTitle} mt-4`}>{lifeStage.stage}</p>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
             </div>
-          </>
+          </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center opacity-40">
-            <Search className="w-20 h-20 mb-6 text-stone-400" />
-            <h2 className="text-2xl font-serif text-center text-stone-500 leading-relaxed">
-              左側のパネルに年を入力して<br/>タイムスリップしましょう
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-32 h-32 border-4 border-black flex items-center justify-center mb-12">
+              <Search className="w-12 h-12" />
+            </div>
+            <h2 className="text-4xl font-black uppercase tracking-tighter leading-tight">
+              Input year to<br/>initiate jump
             </h2>
+            <p className="mt-4 text-xs font-bold uppercase tracking-[0.3em] opacity-30">Waiting for temporal coordinates...</p>
           </div>
         )}
       </div>
@@ -208,30 +213,30 @@ function SettingsModal({ birthDate, onClose, onSave }: { birthDate: string, onCl
   const [date, setDate] = useState(birthDate || '1990-04-01');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
-        <h2 className="text-2xl font-bold text-stone-800 mb-2">生年月日を設定</h2>
-        <p className="text-stone-500 text-sm mb-6">設定すると、その時あなたが何歳のどんな時期だったかを表示します。</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-none animate-in fade-in duration-200">
+      <div className="bg-white border-2 border-black p-12 max-w-md w-full">
+        <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">Set Origin</h2>
+        <p className="text-sm font-medium mb-12 opacity-60 uppercase tracking-wider">Define your birth coordinates for personalized temporal mapping.</p>
         
         <input 
           type="date" 
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="w-full bg-stone-100 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-stone-400 text-stone-800 mb-8"
+          className="w-full bg-white border border-black px-6 py-4 text-xl font-bold focus:outline-none focus:bg-black focus:text-white transition-colors mb-12"
         />
         
-        <div className="flex gap-3">
-          <button 
-            onClick={onClose}
-            className="flex-1 py-3 rounded-xl text-stone-600 font-medium hover:bg-stone-100 transition"
-          >
-            キャンセル
-          </button>
+        <div className="flex flex-col gap-4">
           <button 
             onClick={() => onSave(date)}
-            className="flex-1 py-3 rounded-xl bg-stone-800 text-white font-medium hover:bg-stone-700 transition shadow-lg shadow-stone-800/20"
+            className="w-full py-6 bg-black text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black border border-black transition-colors"
           >
-            保存する
+            Save Configuration
+          </button>
+          <button 
+            onClick={onClose}
+            className="w-full py-4 text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity"
+          >
+            Abort
           </button>
         </div>
       </div>

@@ -1,31 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Noto Sans JP', 'Inter', sans-serif;
+  --font-sans: 'Inter', 'Noto Sans JP', sans-serif;
   --font-serif: 'Shippori Mincho', serif;
-  
-  --animate-fade-in: fade-in 0.8s ease-out forwards;
-  --animate-slide-up: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-ken-burns: ken-burns 20s ease-out forwards;
-
-  @keyframes fade-in {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-  }
-  @keyframes slide-up {
-    0% { opacity: 0; transform: translateY(40px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes ken-burns {
-    0% { transform: scale(1.05); }
-    100% { transform: scale(1.15); }
-  }
 }
 
 @layer base {
   :root {
     --background: #ffffff;
-    --foreground: #111827;
+    --foreground: #000000;
   }
 }
 
@@ -37,6 +20,8 @@ body {
   font-family: var(--font-sans);
   background-color: var(--background);
   color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -44,4 +29,10 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+/* Global reset for rounded corners and shadows if any tailwind defaults remain */
+* {
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
