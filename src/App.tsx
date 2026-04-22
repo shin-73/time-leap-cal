@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Settings } from 'lucide-react';
+import { ChevronLeft, Settings } from 'lucide-react';
 import { convertAdToJapaneseEra, getLifeStage, getYearData } from './data';
 
 type EraType = '西暦' | '明治' | '大正' | '昭和' | '平成' | '令和';
@@ -58,7 +58,7 @@ function App() {
     const lifeStage = getLifeStage(birthDate, activeYear);
 
     return (
-      <div className="flex flex-col h-screen overflow-hidden bg-white text-black relative">
+      <div className="min-h-screen bg-white text-black relative">
         {/* Top 2/3: Image Background */}
         <div className="h-[66vh] relative overflow-hidden flex items-center justify-center border-b border-black">
           <img 
@@ -77,14 +77,14 @@ function App() {
               setActiveYear(null);
               setInputValue('');
             }}
-            className="absolute top-8 right-8 p-4 bg-black text-white hover:bg-gray-800"
+            className="absolute top-8 left-8 p-4 hover:bg-gray-100 bg-white/50 backdrop-blur-sm"
           >
-            <X className="w-8 h-8" />
+            <ChevronLeft className="w-8 h-8" />
           </button>
         </div>
 
-        {/* Bottom 1/3: Content */}
-        <div className="h-[34vh] overflow-y-auto p-8 md:p-16">
+        {/* Bottom Section: Content */}
+        <div className="p-8 md:p-16">
           <div className="max-w-4xl mx-auto space-y-16">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div>
@@ -168,7 +168,7 @@ function App() {
                   }
                 }}
                 placeholder={getPlaceholder()}
-                className="w-full px-0 py-6 md:py-8 bg-transparent border-none text-7xl md:text-9xl font-black placeholder:text-gray-100 focus:outline-none text-center"
+                className="w-full px-0 py-6 md:py-8 bg-transparent border-none text-7xl md:text-9xl font-black placeholder:text-gray-200 focus:outline-none text-center"
               />
               <div className="absolute -bottom-12 md:-bottom-16 left-0 right-0 flex flex-row justify-center gap-4 md:gap-8">
                 {(['西暦', '明治', '大正', '昭和', '平成', '令和'] as EraType[]).map(era => (
