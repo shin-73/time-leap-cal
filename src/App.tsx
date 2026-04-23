@@ -170,40 +170,29 @@ function App() {
 
   const isSubmitEnabled = selectedEra === '西暦' ? inputValue.length === 4 : inputValue.length >= 1;
 
-  if (activeYear) {
-    const eraData = convertAdToJapaneseEra(activeYear);
-    const eraText = `${eraData.era}${eraData.eraYear === 1 ? '元' : eraData.eraYear}年`;
-    const lifeStage = getLifeStage(birthDate, activeYear);
-    const snapshot = getHistoricalSnapshot(activeYear);
+  return (
+    <div className="min-h-screen bg-white text-black relative">
+      {/* Hero Section */}
+      <div className={`h-screen relative overflow-hidden flex flex-col items-center justify-center ${activeYear ? 'border-b border-black bg-[#f0f0f0]' : 'bg-white'}`}>
+        {activeYear && backgroundImageUrl && (
+          <img
+            src={backgroundImageUrl}
+            alt={activeYear.toString()}
+            onLoad={() => setIsImageLoading(false)}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isImageLoading ? 'opacity-0' : 'opacity-100'}`}
+            style={{ objectPosition: 'center 20%' }}
+          />
+        )}
+        {activeYear && <div className="absolute inset-0 bg-white/30 z-[5]"></div>}
 
-    return (
-      <div className="min-h-screen bg-white text-black relative">
-        <div className="h-screen relative overflow-hidden flex flex-col items-center justify-center border-b border-black bg-[#f0f0f0]">
-          {backgroundImageUrl && (
-            <img
-              src={backgroundImageUrl}
-              alt={activeYear.toString()}
-              onLoad={() => setIsImageLoading(false)}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isImageLoading ? 'opacity-0' : 'opacity-100'}`}
-              style={{ objectPosition: 'center 20%' }}
-            />
-          )}
-          <div className="absolute inset-0 bg-white/30 z-[5]"></div>
-          
-          {/* Synchronized Layout to match Home */}
-          <div className="relative z-10 w-full max-w-4xl px-4 py-2 space-y-4 text-center">
-            {/* Transparent placeholders to maintain vertical position */}
-            <div className="opacity-0 pointer-events-none">
-              <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">Time Leap Cal</h1>
-              <p className="text-[10px] tracking-[0.6em] uppercase font-medium mt-4">Chronological Transition System</p>
-            </div>
-            
-            <div className="space-y-4 md:space-y-8">
-              <h1 className="text-7xl md:text-[10rem] font-black leading-none">{activeYear}</h1>
-              <h2 className="text-3xl md:text-5xl font-bold opacity-40">{eraText}</h2>
-            </div>
-          </div>
+        <button 
+          onClick={() => setShowSettings(true)} 
+          className={`absolute top-4 right-4 p-4 hover:opacity-100 transition-opacity z-50 ${activeYear ? 'opacity-30' : 'opacity-10'}`}
+        >
+          <Settings className="w-6 h-6" />
+        </button>
 
+        {activeYear && (
           <button
             onClick={() => {
               setActiveYear(null);
@@ -216,123 +205,134 @@ function App() {
           >
             <ChevronLeft className="w-8 h-8" />
           </button>
-        </div>
+        )}
 
+        <div className="relative z-10 w-full max-w-4xl px-4 py-2 space-y-2 md:space-y-4 text-center">
+          {/* Header persistent area */}
+          <div className={`transition-opacity duration-500 space-y-2 md:space-y-4 ${activeYear ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">Time Leap Cal</h1>
+            <p className="text-[10px] tracking-[0.6em] uppercase opacity-20 font-medium">Chronological Transition System</p>
+          </div>
+
+          <div className="space-y-4 md:space-y-8">
+            {activeYear ? (
+              <div className="space-y-4 md:space-y-8">
+                <h1 className="text-7xl md:text-[10rem] font-black leading-none">{activeYear}</h1>
+                <h2 className="text-3xl md:text-5xl font-bold opacity-40">
+                  {(() => {
+                    const eraData = convertAdToJapaneseEra(activeYear);
+                    return `${eraData.era}${eraData.eraYear === 1 ? '元' : eraData.eraYear}年`;
+                  })()}
+                </h2>
+              </div>
+            ) : (
+              <form onSubmit={handleSearch} className="space-y-4 md:space-y-8">
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={inputValue} 
+                    onChange={(e) => {
+                      const rawVal = e.target.value;
+                      const cleaned = rawVal.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '');
+                      setInputValue(cleaned);
+                      if (selectedEra === '西暦' && cleaned.length === 4) {
+                        handleSearch(undefined, cleaned);
+                      }
+                    }}
+                    onBlur={() => isSubmitEnabled && handleSearch()} 
+                    placeholder={
+                      (() => {
+                        const currentYear = new Date().getFullYear();
+                        if (selectedEra === '令和') return (currentYear - 2018).toString();
+                        if (selectedEra === '平成') return (currentYear - 1988).toString();
+                        if (selectedEra === '昭和') return (currentYear - 1925).toString();
+                        if (selectedEra === '大正') return (currentYear - 1911).toString();
+                        if (selectedEra === '明治') return (currentYear - 1867).toString();
+                        return currentYear.toString();
+                      })()
+                    } 
+                    className="w-full bg-transparent border-none text-7xl md:text-[10rem] font-black placeholder:text-gray-200 focus:outline-none text-center" 
+                  />
+                </div>
+                <div className="flex justify-center flex-wrap gap-1 md:gap-4 px-2">
+                  {(['西暦', '明治', '大正', '昭和', '平成', '令和'] as EraType[]).map(era => (
+                    <label key={era} className="flex items-center cursor-pointer">
+                      <input type="radio" checked={selectedEra === era} onChange={() => setSelectedEra(era)} className="sr-only" />
+                      <span className={`px-2 py-2 text-[10px] md:text-sm font-bold border-2 transition-all whitespace-nowrap ${selectedEra === era ? 'bg-black text-white border-black' : 'border-transparent text-gray-500 hover:text-black'}`}>
+                        {era}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <div className="pt-8 hidden md:block">
+                  <button type="submit" disabled={!isSubmitEnabled} className={`w-full py-10 text-lg font-black uppercase tracking-[1em] ${isSubmitEnabled ? 'bg-black text-white' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>タイムリープ</button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Results Detail Section */}
+      {activeYear && (
         <div className="py-16 md:py-24 px-8 bg-white">
           <div className="max-w-2xl mx-auto space-y-16">
-            <div className="space-y-2">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">時代の情景</h3>
-              <p className="text-2xl md:text-3xl font-medium leading-relaxed [transform:scaleX(0.95)] origin-left">
-                {snapshot.scene}
-              </p>
-            </div>
+            {(() => {
+              const snapshot = getHistoricalSnapshot(activeYear);
+              const lifeStage = getLifeStage(birthDate, activeYear);
+              return (
+                <>
+                  <div className="space-y-2">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">時代の情景</h3>
+                    <p className="text-2xl md:text-3xl font-medium leading-relaxed [transform:scaleX(0.95)] origin-left">
+                      {snapshot.scene}
+                    </p>
+                  </div>
 
-            <div className="space-y-2">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">暮らしの記憶</h3>
-              <p className="text-xl md:text-2xl font-medium leading-relaxed opacity-70">
-                {snapshot.memory}
-              </p>
-            </div>
+                  <div className="space-y-2">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">暮らしの記憶</h3>
+                    <p className="text-xl md:text-2xl font-medium leading-relaxed opacity-70">
+                      {snapshot.memory}
+                    </p>
+                  </div>
 
-            <div className="space-y-2">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">主な出来事</h3>
-              <p className="text-xl md:text-2xl font-medium leading-relaxed opacity-70">
-                {snapshot.event}
-              </p>
-            </div>
+                  <div className="space-y-2">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40">主な出来事</h3>
+                    <p className="text-xl md:text-2xl font-medium leading-relaxed opacity-70">
+                      {snapshot.event}
+                    </p>
+                  </div>
 
-            <div className="pt-20 border-t border-black/5">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.6em] mb-12 opacity-40">あなたの歴史</h3>
-              {lifeStage ? (
-                <div className="flex items-baseline gap-10">
-                  {lifeStage.age >= 0 ? (
-                    <>
-                      <span className="text-8xl md:text-9xl font-black leading-none">{lifeStage.age}</span>
-                      <div className="pb-4">
-                        <div className="text-3xl font-black">歳</div>
-                        <div className="text-[10px] font-bold opacity-30 uppercase tracking-[0.3em] mt-3">{lifeStage.stage}</div>
+                  <div className="pt-20 border-t border-black/5">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.6em] mb-12 opacity-40">あなたの歴史</h3>
+                    {lifeStage ? (
+                      <div className="flex items-baseline gap-10">
+                        {lifeStage.age >= 0 ? (
+                          <>
+                            <span className="text-8xl md:text-9xl font-black leading-none">{lifeStage.age}</span>
+                            <div className="pb-4">
+                              <div className="text-3xl font-black">歳</div>
+                              <div className="text-[10px] font-bold opacity-30 uppercase tracking-[0.3em] mt-3">{lifeStage.stage}</div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic opacity-10 py-8">{lifeStage.stage}</div>
+                        )}
                       </div>
-                    </>
-                  ) : (
-                    <div className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic opacity-10 py-8">{lifeStage.stage}</div>
-                  )}
-                </div>
-              ) : (
-                <button onClick={() => setShowSettings(true)} className="text-[10px] font-black uppercase tracking-[0.4em] border border-black/20 px-12 py-6 hover:bg-black hover:text-white transition-all opacity-30 hover:opacity-100">誕生日を設定する</button>
-              )}
-            </div>
+                    ) : (
+                      <button onClick={() => setShowSettings(true)} className="text-[10px] font-black uppercase tracking-[0.4em] border border-black/20 px-12 py-6 hover:bg-black hover:text-white transition-all opacity-30 hover:opacity-100">誕生日を設定する</button>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
+      )}
 
-        {showSettings && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
-            <div className="bg-white p-12 max-w-md w-full border border-black">
-              <h2 className="text-2xl font-black uppercase mb-4">設定</h2>
-              <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="w-full bg-white border border-black px-6 py-4 text-xl font-bold focus:outline-none mb-12" />
-              <button onClick={() => {
-                setBirthDate(birthDate);
-                localStorage.setItem('birthDate', birthDate);
-                setShowSettings(false);
-              }} className="w-full py-6 bg-black text-white text-sm font-black uppercase tracking-widest hover:bg-gray-800">保存</button>
-              <button onClick={() => setShowSettings(false)} className="w-full py-4 text-[10px] font-bold uppercase tracking-widest opacity-30 mt-4">キャンセル</button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="h-screen w-full flex flex-col items-center justify-center p-4 bg-white text-black relative overflow-hidden">
-      <button onClick={() => setShowSettings(true)} className="absolute top-4 right-4 p-4 opacity-10 hover:opacity-100 transition-opacity"><Settings className="w-6 h-6" /></button>
-      <div className="w-full max-w-4xl px-4 py-2 space-y-2 md:space-y-4 text-center">
-        <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">Time Leap Cal</h1>
-        <p className="text-[10px] tracking-[0.6em] uppercase opacity-20 font-medium">Chronological Transition System</p>
-        <form onSubmit={handleSearch} className="space-y-4 md:space-y-8">
-          <div className="relative">
-            <input 
-              type="text" 
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={inputValue} 
-              onChange={(e) => {
-                const rawVal = e.target.value;
-                const cleaned = rawVal.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '');
-                setInputValue(cleaned);
-                if (selectedEra === '西暦' && cleaned.length === 4) {
-                  handleSearch(undefined, cleaned);
-                }
-              }}
-              onBlur={() => isSubmitEnabled && handleSearch()} 
-              placeholder={
-                (() => {
-                  const currentYear = new Date().getFullYear();
-                  if (selectedEra === '令和') return (currentYear - 2018).toString();
-                  if (selectedEra === '平成') return (currentYear - 1988).toString();
-                  if (selectedEra === '昭和') return (currentYear - 1925).toString();
-                  if (selectedEra === '大正') return (currentYear - 1911).toString();
-                  if (selectedEra === '明治') return (currentYear - 1867).toString();
-                  return currentYear.toString();
-                })()
-              } 
-              className="w-full bg-transparent border-none text-7xl md:text-[10rem] font-black placeholder:text-gray-200 focus:outline-none text-center" 
-            />
-          </div>
-          <div className="flex justify-center flex-wrap gap-1 md:gap-4 px-2">
-            {(['西暦', '明治', '大正', '昭和', '平成', '令和'] as EraType[]).map(era => (
-              <label key={era} className="flex items-center cursor-pointer">
-                <input type="radio" checked={selectedEra === era} onChange={() => setSelectedEra(era)} className="sr-only" />
-                <span className={`px-2 py-2 text-[10px] md:text-sm font-bold border-2 transition-all whitespace-nowrap ${selectedEra === era ? 'bg-black text-white border-black' : 'border-transparent text-gray-500 hover:text-black'}`}>
-                  {era}
-                </span>
-              </label>
-            ))}
-          </div>
-          <div className="pt-8 hidden md:block">
-            <button type="submit" disabled={!isSubmitEnabled} className={`w-full py-10 text-lg font-black uppercase tracking-[1em] ${isSubmitEnabled ? 'bg-black text-white' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>タイムリープ</button>
-          </div>
-        </form>
-      </div>
+      {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
           <div className="bg-white p-12 max-w-md w-full border border-black">
