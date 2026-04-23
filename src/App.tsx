@@ -173,7 +173,7 @@ function App() {
   return (
     <div className="min-h-screen bg-white text-black relative">
       {/* Hero Section */}
-      <div className={`h-screen relative flex flex-col items-center justify-start pt-[12vh] ${activeYear ? 'border-b border-black bg-[#f0f0f0]' : 'bg-white'}`}>
+      <div className={`h-[100dvh] md:h-screen relative flex flex-col items-center justify-start pt-[20vh] md:pt-[12vh] ${activeYear ? 'border-b border-black bg-[#f0f0f0]' : 'bg-white'}`}>
         {activeYear && backgroundImageUrl && (
           <img
             src={backgroundImageUrl}
