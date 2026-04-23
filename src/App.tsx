@@ -237,6 +237,11 @@ function App() {
                         handleSearch(e as any);
                       }
                     }}
+                    onBlur={(e) => {
+                      if (isSubmitEnabled && !activeYear) {
+                        handleSearch(e as any);
+                      }
+                    }}
                     placeholder={
                       (() => {
                         const currentYear = new Date().getFullYear();
