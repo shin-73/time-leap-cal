@@ -173,7 +173,7 @@ function App() {
   return (
     <div className="min-h-screen bg-white text-black relative">
       {/* Hero Section */}
-      <div className={`h-screen relative overflow-hidden flex flex-col items-center justify-center ${activeYear ? 'border-b border-black bg-[#f0f0f0]' : 'bg-white'}`}>
+      <div className={`h-screen relative flex flex-col items-center justify-start pt-[12vh] ${activeYear ? 'border-b border-black bg-[#f0f0f0]' : 'bg-white'}`}>
         {activeYear && backgroundImageUrl && (
           <img
             src={backgroundImageUrl}
@@ -207,41 +207,31 @@ function App() {
           </button>
         )}
 
-        <div className="relative z-10 w-full max-w-4xl px-4 py-2 space-y-2 md:space-y-4 text-center">
-          {/* Header persistent area */}
-          <div className={`transition-opacity duration-500 space-y-2 md:space-y-4 ${activeYear ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">Time Leap Cal</h1>
-            <p className="text-[10px] tracking-[0.6em] uppercase opacity-20 font-medium">Chronological Transition System</p>
-          </div>
-
-          <div className="space-y-4 md:space-y-8">
-            {activeYear ? (
-              <div className="space-y-4 md:space-y-8">
-                <h1 className="text-7xl md:text-[10rem] font-black leading-none">{activeYear}</h1>
-                <h2 className="text-3xl md:text-5xl font-bold opacity-40">
-                  {(() => {
-                    const eraData = convertAdToJapaneseEra(activeYear);
-                    return `${eraData.era}${eraData.eraYear === 1 ? '元' : eraData.eraYear}年`;
-                  })()}
-                </h2>
+        <div className="relative z-10 w-full max-w-4xl text-center">
+          <div className="flex flex-col items-center">
+            {/* Header Area - Fixed height to guarantee absolute stability */}
+            <div className="h-[100px] md:h-[140px] flex flex-col justify-center mb-4 md:mb-8">
+              <div className={`transition-opacity duration-500 ${activeYear ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none">Time Leap Cal</h1>
+                <p className="text-[10px] tracking-[0.6em] uppercase opacity-20 font-medium leading-none mt-4">Chronological Transition System</p>
               </div>
-            ) : (
-              <form onSubmit={handleSearch} className="space-y-4 md:space-y-8">
+            </div>
+
+            {/* Year Area - Fixed height to guarantee absolute stability */}
+            <div className="relative w-full h-[120px] md:h-[200px] flex items-center justify-center">
+              <form onSubmit={handleSearch} className="w-full">
                 <div className="relative">
                   <input 
                     type="text" 
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    value={inputValue} 
+                    value={activeYear ? activeYear.toString() : inputValue} 
+                    readOnly={!!activeYear}
                     onChange={(e) => {
                       const rawVal = e.target.value;
                       const cleaned = rawVal.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '');
                       setInputValue(cleaned);
-                      if (selectedEra === '西暦' && cleaned.length === 4) {
-                        handleSearch(undefined, cleaned);
-                      }
                     }}
-                    onBlur={() => isSubmitEnabled && handleSearch()} 
                     placeholder={
                       (() => {
                         const currentYear = new Date().getFullYear();
@@ -253,24 +243,46 @@ function App() {
                         return currentYear.toString();
                       })()
                     } 
-                    className="w-full bg-transparent border-none text-7xl md:text-[10rem] font-black placeholder:text-gray-200 focus:outline-none text-center" 
+                    className={`w-full bg-transparent border-none text-7xl md:text-[10rem] font-black placeholder:text-gray-200 focus:outline-none text-center leading-none p-0 m-0 ${activeYear ? 'cursor-default' : ''}`} 
                   />
                 </div>
-                <div className="flex justify-center flex-wrap gap-1 md:gap-4 px-2">
-                  {(['西暦', '明治', '大正', '昭和', '平成', '令和'] as EraType[]).map(era => (
-                    <label key={era} className="flex items-center cursor-pointer">
-                      <input type="radio" checked={selectedEra === era} onChange={() => setSelectedEra(era)} className="sr-only" />
-                      <span className={`px-2 py-2 text-[10px] md:text-sm font-bold border-2 transition-all whitespace-nowrap ${selectedEra === era ? 'bg-black text-white border-black' : 'border-transparent text-gray-500 hover:text-black'}`}>
-                        {era}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-                <div className="pt-8 hidden md:block">
-                  <button type="submit" disabled={!isSubmitEnabled} className={`w-full py-10 text-lg font-black uppercase tracking-[1em] ${isSubmitEnabled ? 'bg-black text-white' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>タイムリープ</button>
+
+                {/* Bottom Extras Area - Absolute positioning to prevent shifting the center block */}
+                <div className="md:absolute md:top-full md:left-0 md:right-0 md:pt-8 w-full z-10 px-4">
+                  {activeYear ? (
+                    <h2 className="text-3xl md:text-5xl font-bold opacity-40 leading-none mt-4 md:mt-0">
+                      {(() => {
+                        const eraData = convertAdToJapaneseEra(activeYear);
+                        return `${eraData.era}${eraData.eraYear === 1 ? '元' : eraData.eraYear}年`;
+                      })()}
+                    </h2>
+                  ) : (
+                    <div className="space-y-4 md:space-y-8">
+                      <div className="flex justify-center flex-wrap gap-1 md:gap-4 px-2">
+                        {(['西暦', '明治', '大正', '昭和', '平成', '令和'] as EraType[]).map(era => (
+                          <label key={era} className="flex items-center cursor-pointer">
+                            <input type="radio" checked={selectedEra === era} onChange={() => setSelectedEra(era)} className="sr-only" />
+                            <span className={`px-2 py-2 text-[10px] md:text-sm font-bold border-2 transition-all whitespace-nowrap ${selectedEra === era ? 'bg-black text-white border-black' : 'border-transparent text-gray-500 hover:text-black'}`}>
+                              {era}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                      <div className="pt-8 hidden md:block">
+                        <button 
+                          type="submit" 
+                          disabled={!isSubmitEnabled} 
+                          onClick={(e) => handleSearch(e)}
+                          className={`w-full py-10 text-lg font-black uppercase tracking-[1em] relative z-30 ${isSubmitEnabled ? 'bg-black text-white cursor-pointer hover:bg-gray-900' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
+                        >
+                          タイムリープ
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </form>
-            )}
+            </div>
           </div>
         </div>
       </div>
