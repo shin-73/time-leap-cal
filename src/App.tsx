@@ -232,6 +232,11 @@ function App() {
                       const cleaned = rawVal.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '');
                       setInputValue(cleaned);
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && isSubmitEnabled && !activeYear) {
+                        handleSearch(e as any);
+                      }
+                    }}
                     placeholder={
                       (() => {
                         const currentYear = new Date().getFullYear();
@@ -245,6 +250,8 @@ function App() {
                     } 
                     className={`w-full bg-transparent border-none text-7xl md:text-[10rem] font-black placeholder:text-gray-200 focus:outline-none text-center leading-none p-0 m-0 ${activeYear ? 'cursor-default' : ''}`} 
                   />
+                  {/* Hidden submit button to ensure mobile keyboards show "Go/Search" */}
+                  <button type="submit" className="hidden" aria-hidden="true" />
                 </div>
 
                 {/* Bottom Extras Area - Absolute positioning to prevent shifting the center block */}
