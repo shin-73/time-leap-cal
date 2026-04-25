@@ -3,7 +3,7 @@ import { ChevronLeft, Settings, HelpCircle } from 'lucide-react';
 import { convertAdToJapaneseEra, getLifeStage } from './data';
 import type { EraType } from './data';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AGE_PHRASES, PROMPT_TEMPLATE, LOADING_MESSAGES, SAFETY_SETTINGS } from './constants/aiConfig';
+import { AGE_PHRASES, PROMPT_TEMPLATE, LOADING_MESSAGES } from './constants/aiConfig';
 
 const calculatePersonalNarrative = (birthDate: string, activeYear: number) => {
   const lifeStage = getLifeStage(birthDate, activeYear);
@@ -89,16 +89,18 @@ function App() {
     const eraName = `${eraData.era}${eraData.eraYear === 1 ? '元' : eraData.eraYear}年`;
 
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-flash-latest",
-        safetySettings: SAFETY_SETTINGS
+      // 1. 初期化：バージョン指定を一切行わない
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY as string);
+
+      // 2. モデル取得：現在のAPIキーで利用可能な最新のFlashモデルを使用
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-flash-latest" 
       });
 
       const prompt = PROMPT_TEMPLATE(year, eraName);
 
       const timeoutPromise = new Promise<string>((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout')), 18000)
+        setTimeout(() => reject(new Error('Timeout')), 30000)
       );
 
       const aiPromise = (async () => {
@@ -108,8 +110,13 @@ function App() {
 
       const narrative = await Promise.race([aiPromise, timeoutPromise]);
       setHistoricalText(narrative);
-    } catch (error) {
-      console.error("Error generating narrative:", error);
+    } catch (error: any) {
+      console.error("========== API ERROR DETAILS ==========");
+      console.error("Error Type:", error?.name || "Unknown");
+      console.error("Status:", error?.status || "N/A");
+      console.error("Message:", error?.message || error?.toString());
+      console.error("Full Error Object:", error);
+      console.error("=====================================");
       setHistoricalText(`${year}年（${eraName}）の歴史的記憶にアクセスできませんでした。`);
     } finally {
       setIsTextLoading(false);
