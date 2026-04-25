@@ -182,7 +182,7 @@ function App() {
   return (
     <div className="min-h-[100dvh] bg-white text-black relative">
       {/* Hero Section */}
-      <div className={`w-full relative min-h-[450px] sm:min-h-[500px] pb-24 justify-start pt-[120px] md:pt-[160px] overflow-hidden flex flex-col items-center ${activeYear ? 'border-b border-black bg-[#f0f0f0]' : 'bg-transparent'}`}>
+      <div className={`w-full relative min-h-[450px] sm:min-h-[500px] justify-start pt-[120px] md:pt-[160px] overflow-hidden flex flex-col items-center ${activeYear ? 'pb-24 border-b border-black bg-[#f0f0f0]' : 'pb-[280px] bg-transparent'}`}>
         {activeYear && backgroundImageUrl && (
           <>
             <img
